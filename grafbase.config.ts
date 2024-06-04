@@ -1,4 +1,10 @@
-import { auth, config, g } from "@grafbase/sdk";
+import { auth, config, graph } from "@grafbase/sdk";
+
+// Welcome to Grafbase!
+//
+// Configure authentication, data sources, resolvers and caching for your GraphQL API.
+
+const g = graph.Standalone();
 
 // @ts-ignore
 const User = g
@@ -34,15 +40,39 @@ const Project = g
     rules.private().create().delete().update();
   });
 
-const jwt = auth.JWT({
-  issuer: "grafbase",
-  secret: g.env("NEXTAUTH_SECRET"),
-});
+// Data Sources - https://grafbase.com/docs/connectors
+//
+// const pg = connector.Postgres('pg', { url: g.env('DATABASE_URL') })
+// g.datasource(pg)
+
+// Resolvers - https://grafbase.com/docs/resolvers
+//
+// g.query('helloWorld', {
+//   returns: g.string(),
+//   resolver: 'hello-world',
+// })
+
+const jwt = auth.JWT({ issuer: "grafbase", secret: g.env("NEXTAUTH_SECRET") });
 
 export default config({
-  schema: g,
+  graph: g,
+  // Authentication - https://grafbase.com/docs/auth
   auth: {
+    // OpenID Connect
+    // const oidc = auth.OpenIDConnect({ issuer: g.env('OIDC_ISSUER_URL') })
     providers: [jwt],
-    rules: (rules) => rules.private(),
+    rules: (rules) => {
+      rules.private();
+    },
   },
+  // Caching - https://grafbase.com/docs/graphql-edge-caching
+  // cache: {
+  //   rules: [
+  //     {
+  //       types: ['Query'], // Cache everything for 60 seconds
+  //       maxAge: 60,
+  //       staleWhileRevalidate: 60
+  //     }
+  //   ]
+  // }
 });
