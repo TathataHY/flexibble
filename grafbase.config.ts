@@ -1,18 +1,22 @@
-import { auth, config, graph } from "@grafbase/sdk";
+import { auth, config, g } from "@grafbase/sdk";
+import { TypeFieldShape } from "@grafbase/sdk/dist/src/type";
 
 // Welcome to Grafbase!
 //
 // Configure authentication, data sources, resolvers and caching for your GraphQL API.
 
-const g = graph.Standalone();
+// const g = graph.Standalone();
 
 // @ts-ignore
 const User = g
   .model("User", {
-    name: g.string().length({ min: 2, max: 100 }),
-    email: g.string().unique(),
+    name: g.string().length({ min: 1, max: 255 }) as unknown as TypeFieldShape,
+    email: g.string(),
     avatarUrl: g.url(),
-    description: g.string().length({ min: 2, max: 1000 }).optional(),
+    description: g
+      .string()
+      .length({ min: 2, max: 1000 })
+      .optional() as unknown as TypeFieldShape,
     githubUrl: g.url().optional(),
     linkedinUrl: g.url().optional(),
     projects: g
@@ -27,7 +31,7 @@ const User = g
 // @ts-ignore
 const Project = g
   .model("Project", {
-    title: g.string().length({ min: 3 }),
+    title: g.string().length({ min: 3 }) as unknown as TypeFieldShape,
     description: g.string(),
     image: g.url(),
     liveSiteUrl: g.url(),
@@ -55,7 +59,7 @@ const Project = g
 const jwt = auth.JWT({ issuer: "grafbase", secret: g.env("NEXTAUTH_SECRET") });
 
 export default config({
-  graph: g,
+  schema: g,
   // Authentication - https://grafbase.com/docs/auth
   auth: {
     // OpenID Connect
